@@ -1,0 +1,156 @@
+import pygame
+import time
+import sys
+
+pygame.init()
+screen = pygame.display.set_mode((700,700))
+pygame.display.set_caption('Delta time')
+
+test_rect = pygame.Rect(600, 100, 100, 100)
+
+clock = pygame.time.Clock()
+
+"""
+
+while True:
+	dt = clock.tick(60)* 0.01  # delta time in seconds (seconds it took to switch frames)
+	for event in pygame.event.get():
+		if event.type == pygame.QUIT:
+			pygame.quit()
+			sys.exit()
+			
+	screen.fill('white')
+	
+# movement
+	test_rect.x += test_speed * dt  
+
+	pygame.draw.rect(screen, 'black', test_rect)
+
+	pygame.display.update()
+	clock.tick(60)
+
+"""
+# MORE PRECISE METHOD 
+
+prev_time = time.time()
+dummydelx = test_rect.x
+dummydely = test_rect.y
+
+accelx = 0
+accely = 0
+delx = 0
+dely = 0
+maxdely = 600
+maxdelx = 600
+friction = 800
+
+while True:
+
+	dt = time.time()-prev_time
+	prev_time = time.time()
+	
+	for event in pygame.event.get():
+		if event.type == pygame.QUIT:
+			pygame.quit()
+			sys.exit()
+			break
+	
+	if delx !=0:
+		directionx = abs(delx)/delx
+
+	if dely !=0:
+		directiony = abs(dely)/dely
+	
+	if event.type == pygame.KEYDOWN or pygame.KEYUP:
+		keys = pygame.key.get_pressed()
+		chk1 = [keys[pygame.K_LEFT], keys[pygame.K_a]]
+		chk2 = [keys[pygame.K_RIGHT], keys[pygame.K_d]]
+		chk3 = [keys[pygame.K_UP], keys[pygame.K_w]]
+		chk4 = [keys[pygame.K_DOWN], keys[pygame.K_s]]
+		if 1 in chk1 and 1 in chk2:
+			accelx = 0
+
+		elif keys[pygame.K_LEFT] or keys[pygame.K_a]:
+			if delx == 0 or directionx == -1: 
+				accelx = -1000
+			else:
+				accelx = -2000
+		elif keys[pygame.K_RIGHT] or keys[pygame.K_d]:
+			if delx == 0 or directionx == 1: 
+				accelx = 1000
+			else:
+				accelx = 2000
+		else:
+			accelx = 0
+
+		if 1 in chk3 and 1 in chk4:
+			accely = 0
+
+		elif keys[pygame.K_UP] or keys[pygame.K_w]:
+			if dely == 0 or directiony == -1: 
+				accely = -600
+			else:
+				accely = -1000
+		elif keys[pygame.K_DOWN] or keys[pygame.K_s]:
+			if dely == 0 or directiony == 1: 
+				accely = 600
+			else:
+				accely = 1000
+		else:
+			accely = 0
+
+		delx += accelx * dt
+		dely += accely * dt
+
+		if abs(delx) >= maxdelx:
+			delx = abs(delx)/delx * maxdelx
+
+		if abs(dely) >= maxdely:
+			dely = abs(dely)/dely * maxdely
+		
+# DECELERATION 
+
+		if dely != 0 and accely == 0:
+			decelerateddely = dely - (directiony * friction * dt)
+			if directiony == abs(decelerateddely) / decelerateddely:
+				dely = decelerateddely
+			else:
+				dely = 0 			
+
+		if delx != 0 and accelx == 0:
+			decelerateddelx = delx - (directionx * friction * dt)
+			if directionx == abs(decelerateddelx) / decelerateddelx:
+				delx = decelerateddelx
+			else:
+				delx = 0
+
+# MOVEMENT
+	
+	dummyx = dummydelx + delx * dt
+	dummyy = dummydely + dely * dt
+	if dummyx >= 600:
+		dummydelx = 600
+		delx = 0
+	elif dummyx <= 0:
+		dummydelx = 0
+		delx = 0
+	else:
+		dummydelx = round(dummyx)
+
+	if dummyy >= 600:
+		dummydely = 600
+		dely = 0
+	elif dummyy <= 0:
+		dummydely = 0
+		dely = 0
+	else:
+		dummydely = round(dummyy)
+	
+	test_rect.x = dummydelx
+	test_rect.y = dummydely
+	
+	screen.fill('black')
+	pygame.draw.rect(screen, 'white', test_rect)
+
+	pygame.display.update()
+	clock.tick(60)
